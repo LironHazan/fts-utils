@@ -1,0 +1,5 @@
+src/g_sheets_utils/private
+src/g_sheets_utils/tables
+.idea
+node_modules
+
