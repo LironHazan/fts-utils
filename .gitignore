@@ -1,5 +1,5 @@
-src/g_sheets_utils/private
-src/g_sheets_utils/tables
+src/private
+tables
 .idea
 node_modules
 
