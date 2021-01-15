@@ -10,13 +10,12 @@ const readFromFile = promisify(fs.readFile);
 const writeToFile = promisify(fs.writeFile);
 
 // Main
-(async () => {
+export async function exportTables() {
   const readCreds: Task<string> = async () => readFromFile('src/private/credentials.json', 'utf-8');
   const fail = <T>(reason: T) => new Error(`${reason}`);
   const _authorize = (creds: string) => authorize(JSON.parse(creds), fetchTables);
-  const done = await pipe(tryCatch(readCreds, fail), map(_authorize))();
-  console.log(done);
-})();
+  return await pipe(tryCatch(readCreds, fail), map(_authorize))();
+}
 
 async function authorize(credentials: Creds, callback: CbObj) {
   const { client_secret, client_id, redirect_uris } = credentials.installed;
@@ -63,36 +62,5 @@ function fetchTable<T>(sheets: Sheets, range: any, spreadsheetId: any): Promise<
 }
 
 function tableAsJson(rows: any, tableName: any): Promise<any> {
-  const model = transformToTestSuiteModel(rows);
-  return writeToFile(`tables/${tableName}.json`, JSON.stringify(model));
-}
-
-// before: [suite_name, test_name, objective, null, steps, expected]
-// helper struct: { suitename: [tests ..] }
-// final struct: [{name, tests: [{name, objective, steps}]}]
-function transformToTestSuiteModel(rows: any) {
-  // prepare suites - to map
-  const suites = getSuites(rows);
-  return Object.keys(suites).map((key) => ({
-    name: key,
-    tests: (suites as any)[key],
-  }));
-}
-
-function getSuites(rows: any) {
-  const suites = {};
-  for (const row of rows) {
-    const name = row[0].replace(' ', '');
-    const testName = row[1].replace(' ', '_');
-    if (!(suites as any)[name]) {
-      (suites as any)[name] = [];
-    }
-    (suites as any)[name].push({
-      name: testName,
-      objective: row[2] || '',
-      steps: row[4] || '',
-      expected: row[5] || '',
-    });
-  }
-  return suites;
+  return writeToFile(`tables/${tableName}.json`, JSON.stringify(rows));
 }
