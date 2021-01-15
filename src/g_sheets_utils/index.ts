@@ -41,8 +41,8 @@ async function fetchTables(auth: any) {
   const authErr = () => console.log('error reading private/table_meta.json');
   const fetchTables = (data: string) => {
     const { tables, id } = JSON.parse(data);
-    const procedures = tables.map((_table: any) => fetchTable(sheets, _table, id));
-    Promise.all(procedures)
+    const task = (t: string) => fetchTable(sheets, t, id);
+    Promise.all(tables.map(task))
       .then(() => console.log('done'))
       .catch((err) => console.log(err))
       .finally(() => console.log('bye bye'));
