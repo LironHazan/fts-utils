@@ -28,7 +28,7 @@ async function authorize(credentials: Creds, callback: CbObj) {
         oAuth2Client.setCredentials(JSON.parse(token));
         callback(oAuth2Client);
     }
-    const newUserStrategy = <T>(_: T) => getNewToken(oAuth2Client, callback);
+    const newUserStrategy = () => getNewToken(oAuth2Client, callback);
 
     // Check if we have previously stored a token.
     await pipe(tryCatch(getTokenPath, newUserStrategy), map(setCreds))()
