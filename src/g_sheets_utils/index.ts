@@ -1,11 +1,11 @@
 import { CbObj, Creds, Sheets } from './fts-types';
-const fs = require('fs');
-const { google } = require('googleapis');
 import { pipe } from 'fp-ts/lib/function';
 import { tryCatch, map } from 'fp-ts/lib/TaskEither';
 import { promisify } from 'util';
 import { getNewToken, TOKEN_PATH } from './g-sheets.utils';
 import { Task } from 'fp-ts/Task';
+const fs = require('fs');
+const { google } = require('googleapis');
 const readFromFile = promisify(fs.readFile);
 const writeToFile = promisify(fs.writeFile);
 
