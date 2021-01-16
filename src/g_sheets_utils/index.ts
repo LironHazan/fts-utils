@@ -4,6 +4,8 @@ import { tryCatch, map } from 'fp-ts/lib/TaskEither';
 import { promisify } from 'util';
 import { getNewToken, TOKEN_PATH } from './g-sheets.utils';
 import { Task } from 'fp-ts/Task';
+import { array, task } from 'fp-ts';
+
 const fs = require('fs');
 const { google } = require('googleapis');
 const readFromFile = promisify(fs.readFile);
@@ -40,8 +42,10 @@ async function fetchTables(auth: any) {
   const authErr = () => console.log('error reading private/table_meta.json');
   const fetchTables = (data: string) => {
     const { tables, id } = JSON.parse(data);
-    const task = (t: string) => fetchTable(sheets, t, id);
-    Promise.all(tables.map(task))
+    const fetchT = async (t: string) => await fetchTable(sheets, t, id);
+    const tasks = tables.map(() => task.of(fetchT));
+    array
+      .sequence(task.task)(tasks)()
       .then(() => console.log('done'))
       .catch((err) => console.log(err))
       .finally(() => console.log('bye bye'));
@@ -54,9 +58,9 @@ function fetchTable<T>(sheets: Sheets, range: any, spreadsheetId: any): Promise<
     sheets.spreadsheets.values.get({ spreadsheetId, range }, (err, res) => {
       if (err || !res.data) {
         console.log('The API returned an error: ' + err);
-        return reject();
+        return reject(err);
       }
-      return tableAsJson(res.data.values, range);
+      return resolve(tableAsJson(res.data.values, range));
     });
   });
 }
