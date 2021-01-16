@@ -43,18 +43,20 @@ async function fetchTables(auth: any): Promise<Either<void, void>> {
   const authErr = () => console.log('error reading private/table_meta.json');
   const fetchTables = (data: string) => {
     const { tables, id } = JSON.parse(data);
-    const tasks = tables.map((t: string) => task.of(fetchTable(sheets, t, id)));
-    array
-      .sequence(task.task)(tasks)()
-      .then((_: any) =>
-        pipe(
-          _,
-          either.fold(
-            (err) => console.log(err),
-            (x) => console.log('done!')
-          )
+
+    const ft: (t: string) => Task<unknown> = (t: string) => task.of(fetchTable(sheets, t, id));
+    const tasks = tables.map(ft);
+
+    const parallel = array.sequence(task.task)(tasks)();
+    parallel.then((_: any) =>
+      pipe(
+        _,
+        either.fold(
+          (err) => console.log(err),
+          () => console.log('done!')
         )
-      );
+      )
+    );
   };
   return await pipe(tryCatch(authorised, authErr), map(fetchTables))();
 }
