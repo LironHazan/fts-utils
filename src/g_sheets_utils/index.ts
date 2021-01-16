@@ -1,6 +1,6 @@
 import { CbObj, Creds, Sheets } from './fts-types';
 import { pipe } from 'fp-ts/lib/function';
-import { tryCatch, map } from 'fp-ts/lib/TaskEither';
+import { tryCatch, map, TaskEither } from 'fp-ts/lib/TaskEither';
 import { promisify } from 'util';
 import { getNewToken, TOKEN_PATH } from './g-sheets.utils';
 import { Task } from 'fp-ts/Task';
@@ -12,12 +12,13 @@ const { google } = require('googleapis');
 const readFromFile = promisify(fs.readFile);
 const writeToFile = promisify(fs.writeFile);
 
-// Main
+const readCreds: Task<string> = async () => readFromFile('src/private/credentials.json', 'utf-8');
+const fail = <T>(reason: T) => new Error(`${reason}`);
+const auth = (creds: string) => authorize(JSON.parse(creds), fetchTables);
+
 export async function exportTables<E>(): Promise<Either<Error, Promise<Either<void, void>>>> {
-  const readCreds: Task<string> = async () => readFromFile('src/private/credentials.json', 'utf-8');
-  const fail = <T>(reason: T) => new Error(`${reason}`);
-  const _authorize = (creds: string) => authorize(JSON.parse(creds), fetchTables);
-  return await pipe(tryCatch(readCreds, fail), map(_authorize))();
+  const result: TaskEither<Error, string> = tryCatch(readCreds, fail);
+  return await pipe(result, map(auth))();
 }
 
 async function authorize(credentials: Creds, callback: CbObj): Promise<Either<void, void>> {
