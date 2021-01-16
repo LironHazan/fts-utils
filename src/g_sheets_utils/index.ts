@@ -37,24 +37,24 @@ async function authorize(credentials: Creds, callback: CbObj): Promise<Either<vo
 
 // * Prints the names and majors of students in a sample spreadsheet:
 // * @see https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
-async function fetchTables(auth: any): Promise<Either<void, void>> {
+async function fetchTables<E>(auth: any): Promise<Either<void, Promise<void>>> {
   const sheets = google.sheets({ version: 'v4', auth });
   const authorised: Task<string> = async () => readFromFile('src/private/table_meta.json', 'utf-8');
   const authErr = () => console.log('error reading private/table_meta.json');
-  const fetchTables = (data: string) => {
+  const fetchTables = async (data: string) => {
     const { tables, id } = JSON.parse(data);
 
-    const ft: (t: string) => Task<unknown> = (t: string) => task.of(fetchTable(sheets, t, id));
-    const tasks = tables.map(ft);
+    const ft: (t: string) => Task<Promise<Either<Error, unknown>>> = (t: string) =>
+      task.of(eitherFetchTable(sheets, t, id));
+    const tasks: Task<string>[] = tables.map(ft);
 
     const parallel = array.sequence(task.task)(tasks)();
-    parallel.then((_: any) =>
-      pipe(
-        _,
-        either.fold(
-          (err) => console.log(err),
-          () => console.log('done!')
-        )
+    const _: any = await parallel;
+    pipe(
+      _,
+      either.fold(
+        (err) => console.log(err),
+        () => console.log('done!')
       )
     );
   };
@@ -71,6 +71,16 @@ function fetchTable<T>(sheets: Sheets, range: any, spreadsheetId: any): Promise<
       return resolve(tableAsJson(res.data.values, range));
     });
   });
+}
+
+async function eitherFetchTable<T>(sheets: Sheets, range: any, spreadsheetId: any): Promise<Either<Error, unknown>> {
+  return await pipe(
+    tryCatch(
+      () => fetchTable(sheets, range, spreadsheetId),
+      (reason) => new Error(`${reason}`)
+    ),
+    map((resp) => resp)
+  )();
 }
 
 function tableAsJson(rows: any, tableName: any): Promise<any> {
