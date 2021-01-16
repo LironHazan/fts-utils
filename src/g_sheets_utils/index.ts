@@ -4,7 +4,7 @@ import { tryCatch, map } from 'fp-ts/lib/TaskEither';
 import { promisify } from 'util';
 import { getNewToken, TOKEN_PATH } from './g-sheets.utils';
 import { Task } from 'fp-ts/Task';
-import { array, task } from 'fp-ts';
+import { array, either, task } from 'fp-ts';
 
 const fs = require('fs');
 const { google } = require('googleapis');
@@ -42,13 +42,18 @@ async function fetchTables(auth: any) {
   const authErr = () => console.log('error reading private/table_meta.json');
   const fetchTables = (data: string) => {
     const { tables, id } = JSON.parse(data);
-    const fetchT = async (t: string) => await fetchTable(sheets, t, id);
-    const tasks = tables.map(() => task.of(fetchT));
+    const tasks = tables.map((t: string) => task.of(fetchTable(sheets, t, id)));
     array
       .sequence(task.task)(tasks)()
-      .then(() => console.log('done'))
-      .catch((err) => console.log(err))
-      .finally(() => console.log('bye bye'));
+      .then((_: any) =>
+        pipe(
+          _,
+          either.fold(
+            (err) => console.log(err),
+            (x) => console.log('done!')
+          )
+        )
+      );
   };
   await pipe(tryCatch(authorised, authErr), map(fetchTables))();
 }
