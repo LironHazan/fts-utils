@@ -44,8 +44,7 @@ async function fetchTables<E>(auth: any): Promise<Either<void, Promise<void>>> {
   const fetchTables = async (data: string) => {
     const { tables, id } = JSON.parse(data);
 
-    const ft: (t: string) => Task<Promise<Either<Error, unknown>>> = (t: string) =>
-      task.of(eitherFetchTable(sheets, t, id));
+    const ft: (t: string) => Task<Promise<Either<Error, unknown>>> = (t: string) => task.of(fetchTable(sheets, t, id));
     const tasks: Task<string>[] = tables.map(ft);
 
     const parallel = array.sequence(task.task)(tasks)();
@@ -61,7 +60,7 @@ async function fetchTables<E>(auth: any): Promise<Either<void, Promise<void>>> {
   return await pipe(tryCatch(authorised, authErr), map(fetchTables))();
 }
 
-function fetchTable<T>(sheets: Sheets, range: any, spreadsheetId: any): Promise<T> {
+function fetchTable<T>(sheets: Sheets, range: any, spreadsheetId: any): Promise<Either<Error, unknown>> {
   return new Promise((resolve, reject) => {
     sheets.spreadsheets.values.get({ spreadsheetId, range }, (err, res) => {
       if (err || !res.data) {
@@ -73,16 +72,6 @@ function fetchTable<T>(sheets: Sheets, range: any, spreadsheetId: any): Promise<
   });
 }
 
-async function eitherFetchTable<T>(sheets: Sheets, range: any, spreadsheetId: any): Promise<Either<Error, unknown>> {
-  return await pipe(
-    tryCatch(
-      () => fetchTable(sheets, range, spreadsheetId),
-      (reason) => new Error(`${reason}`)
-    ),
-    map((resp) => resp)
-  )();
-}
-
-function tableAsJson(rows: any, tableName: any): Promise<any> {
+function tableAsJson(rows: any, tableName: any): Promise<Either<Error, unknown>> {
   return writeToFile(`tables/${tableName}.json`, JSON.stringify(rows));
 }
