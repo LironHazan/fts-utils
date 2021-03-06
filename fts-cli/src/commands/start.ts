@@ -5,7 +5,7 @@ import { exportTask, importTask } from '../tasks/start/tasks';
 import { Action, None } from '../fts.types';
 
 export class MasterCmd extends Command {
-  static description = 'Initiates a Task.' + '("./bin/run start -n=<name>")';
+  static description = 'Initiates a Task';
   static flags = FLAGS;
   static args = [{ name: 'file' }];
 
@@ -26,7 +26,7 @@ export class MasterCmd extends Command {
     const action: Action = flags.action;
 
     if (!action) {
-      const responses: any = await inquirer.prompt(QUESTIONS);
+      const responses = await inquirer.prompt(QUESTIONS);
       const result = await execTasks(responses.action);
       console.log(result);
     }
