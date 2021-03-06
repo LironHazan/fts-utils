@@ -1,20 +1,17 @@
-import { Command, flags } from '@oclif/command';
+import { Command } from '@oclif/command';
 import * as inquirer from 'inquirer';
+import { FLAGS, QUESTIONS } from '../tasks/start/consts';
+import { exportTask, importTask } from '../tasks/start/tasks';
+import { Action, None } from '../fts.types';
 
-type Action = 'import' | 'export' | string | undefined;
 export class MasterCmd extends Command {
-  static description = 'describe the command here';
-  static flags = {
-    help: flags.help({ char: 'h' }),
-    // flag with a value (-n, --name=VALUE)
-    name: flags.string({ char: 'n', description: 'name to print' }),
-    // flag with no value (-f, --force)
-    force: flags.boolean({ char: 'f' }),
-    action: flags.string({ options: ['import', 'export'] }),
-  };
+  static description = 'Initiates an Import or an Export task.' + '("./bin/run start -n=<name>")';
+  static flags = FLAGS;
   static args = [{ name: 'file' }];
 
-  async init() {}
+  async init() {
+    console.log('great hook!');
+  }
 
   async run() {
     const { args, flags } = this.parse(MasterCmd);
@@ -26,32 +23,21 @@ export class MasterCmd extends Command {
       this.log(`you input --force and --file: ${args.file}`);
     }
 
-    let action: Action = flags.action;
+    const action: Action = flags.action;
     if (!action) {
-      let responses: any = await inquirer.prompt([
-        {
-          name: 'action',
-          message: 'What action to perform?',
-          type: 'list',
-          choices: [{ name: 'import' }, { name: 'export' }],
-        },
-      ]);
-      action = responses.action;
+      const responses: any = await inquirer.prompt(QUESTIONS);
+      execTasks(responses.action);
     }
-    switch (action) {
-      case 'export':
-        exportTask();
-        break;
-      case 'import':
-        importTask();
-        break;
-      default:
-        this.log('nothing');
-    }
-
-    this.log(`the action is: ${action}`);
   }
 }
 
-function importTask() {}
-function exportTask() {}
+function execTasks<T>(response: Action): T | None {
+  switch (response) {
+    case 'export':
+      return exportTask();
+    case 'import':
+      return importTask();
+    default:
+      console.log('Nothing');
+  }
+}
