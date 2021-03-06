@@ -1,7 +1,7 @@
 import { Command } from '@oclif/command';
 import * as inquirer from 'inquirer';
 import { FLAGS, QUESTIONS } from '../tasks/start/consts';
-import { exportTask, importTask, optimizeSVG } from '../tasks/start/tasks';
+import { exportTask, importTask } from '../tasks/start/tasks';
 import { Action, None } from '../fts.types';
 
 export class MasterCmd extends Command {
@@ -27,21 +27,18 @@ export class MasterCmd extends Command {
 
     if (!action) {
       const responses: any = await inquirer.prompt(QUESTIONS);
-      const filepath = 'src/tasks/start/icon.svg';
-      const result = await execTasks(responses.action, filepath);
-      console.log((result as any)?.data ?? result);
+      const result = await execTasks(responses.action);
+      console.log(result);
     }
   }
 }
 
-async function execTasks<T>(response: Action, filepath: string): Promise<{ data: string } | T | None> {
+async function execTasks<T>(response: Action): Promise<T | None> {
   switch (response) {
     case 'export':
       return exportTask();
     case 'import':
       return importTask();
-    case 'opt_svg':
-      return await optimizeSVG(filepath);
     default:
       console.log('Nothing');
   }
