@@ -5,7 +5,7 @@ export const QUESTIONS = [
     name: 'action',
     message: 'What action to perform?',
     type: 'list',
-    choices: [{ name: 'import' }, { name: 'export' }],
+    choices: [{ name: 'import' }, { name: 'export' }, { name: 'opt_svg' }],
   },
   {
     name: 'cleanup',
@@ -21,5 +21,110 @@ export const FLAGS = {
   name: flags.string({ char: 'n', description: 'name to print' }),
   // flag with no value (-f, --force)
   force: flags.boolean({ char: 'f' }),
-  action: flags.string({ options: ['import', 'export'] }),
+  action: flags.string({ options: ['import', 'export', 'opt_svg'] }),
 };
+
+export const SVGO_PLUGINS = [
+  {
+    cleanupAttrs: true,
+  },
+  {
+    removeDoctype: true,
+  },
+  {
+    removeXMLProcInst: true,
+  },
+  {
+    removeComments: true,
+  },
+  {
+    removeMetadata: true,
+  },
+  {
+    removeTitle: true,
+  },
+  {
+    removeDesc: true,
+  },
+  {
+    removeUselessDefs: true,
+  },
+  {
+    removeEditorsNSData: true,
+  },
+  {
+    removeEmptyAttrs: true,
+  },
+  {
+    removeHiddenElems: true,
+  },
+  {
+    removeEmptyText: true,
+  },
+  {
+    removeEmptyContainers: true,
+  },
+  {
+    removeViewBox: false,
+  },
+  {
+    cleanupEnableBackground: true,
+  },
+  {
+    convertStyleToAttrs: true,
+  },
+  {
+    convertColors: true,
+  },
+  {
+    convertPathData: true,
+  },
+  {
+    convertTransform: true,
+  },
+  {
+    removeUnknownsAndDefaults: true,
+  },
+  {
+    removeNonInheritableGroupAttrs: true,
+  },
+  {
+    removeUselessStrokeAndFill: true,
+  },
+  {
+    removeUnusedNS: true,
+  },
+  {
+    cleanupIDs: true,
+  },
+  {
+    cleanupNumericValues: true,
+  },
+  {
+    moveElemsAttrsToGroup: true,
+  },
+  {
+    moveGroupAttrsToElems: true,
+  },
+  {
+    collapseGroups: true,
+  },
+  {
+    removeRasterImages: false,
+  },
+  {
+    mergePaths: true,
+  },
+  {
+    convertShapeToPath: true,
+  },
+  {
+    sortAttrs: true,
+  },
+  {
+    removeDimensions: true,
+  },
+  {
+    removeAttrs: { attrs: '(stroke|fill)' },
+  },
+];
