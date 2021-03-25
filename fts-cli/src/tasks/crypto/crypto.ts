@@ -1,4 +1,5 @@
 import { flags } from '@oclif/command';
+import { Option } from 'fp-ts/Option';
 
 const crypto = require('crypto');
 const ENC_KEY = Buffer.from('bf3c199c2470cb477d907b1e0917c17bbf3c199c2470cb477d907b1e0917c17b', 'hex'); // set random encryption key
@@ -22,14 +23,14 @@ export const CHOICES = [
 export class AES {
   encrypt(text: string | undefined): string {
     let cipher = crypto.createCipheriv('aes-256-cbc', ENC_KEY, IV);
-    let encrypted = cipher.update(text, 'utf8', 'base64');
+    let encrypted = cipher.update(text);
     encrypted += cipher.final('base64');
     return encrypted;
   }
 
-  decrypt(encrypted: string | undefined): string {
+  decrypt(encrypted: Buffer): Option<string> {
     let decipher = crypto.createDecipheriv('aes-256-cbc', ENC_KEY, IV);
-    let decrypted = decipher.update(encrypted, 'base64', 'utf8');
+    let decrypted = decipher.update(encrypted);
     return decrypted + decipher.final('utf8');
   }
 }
