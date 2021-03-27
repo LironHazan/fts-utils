@@ -1,12 +1,11 @@
-import { None } from '../../fts.types';
 import { promisify } from 'util';
-const svgo = require('svgo');
-const fs = require('fs');
+import { optimize, OptimizedSvg } from 'svgo';
+import * as fs from 'fs';
 const readFromFile = promisify(fs.readFile);
 
-export function optimizeSVG<T>(filepath: string): Promise<{ data: string } | None> {
+export function optimizeSVG<T>(filepath: string): Promise<OptimizedSvg> {
   console.log('svgo.optimize');
   return readFromFile(filepath, 'utf8').then((data: any) => {
-    return svgo.optimize(data, { path: filepath });
+    return optimize(data, { path: filepath });
   });
 }

@@ -8,7 +8,7 @@ export class Crypto extends Command {
   static flags = FLAGS;
 
   async run() {
-    //todo: fix floow
+    //todo: broken flow
     const { flags } = this.parse(Crypto);
     const text = flags?.text;
     const responses = await inquirer.prompt(CHOICES);

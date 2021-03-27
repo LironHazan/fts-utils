@@ -22,7 +22,7 @@ export const CHOICES = [
 export class AES {
   encrypt(text: string | undefined): string {
     let cipher = crypto.createCipheriv('aes-256-cbc', ENC_KEY, IV);
-    let encrypted = cipher.update(text, 'utf8', 'base64');
+    let encrypted = cipher.update(text);
     encrypted += cipher.final('base64');
     return encrypted;
   }
