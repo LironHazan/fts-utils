@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@types/node": "^14.14.20",
+    "@types/svgo": "^2.0.0",
     "express": "^4.16.4",
     "fp-ts": "^2.9.3",
     "googleapis": "^67.0.0",
