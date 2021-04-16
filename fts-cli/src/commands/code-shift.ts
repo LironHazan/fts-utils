@@ -9,7 +9,7 @@ export class CodeShift extends Command {
   static description = 'exec jscodeshift';
   async run() {
     const result: Either<Error, ChildProcess> = await runCodeShift();
-    const final = pipe(
+    const final = await pipe(
       result,
       either.fold(
         (err) => console.log(err.message),
