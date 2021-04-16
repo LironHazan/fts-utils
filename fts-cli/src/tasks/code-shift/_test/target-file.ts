@@ -10,10 +10,10 @@ class TestObj {
 const testFlowObj = new TestObj();
 
 export async function testCodMod() {
-  await testFlowObj.collect();
+  await testFlowObj.run();
 }
 
 export async function testCodModToo() {
-  await testFlowObj.collect();
+  await testFlowObj.run();
 }
 
